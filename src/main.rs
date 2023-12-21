@@ -62,7 +62,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let current_phase = current_phase.as_str().unwrap_or_default();
 
     match args.phase {
-        true => println!("{:?}", current_phase),
+        true => println!("{}", current_phase),
         false => (),
     };
 
