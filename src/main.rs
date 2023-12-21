@@ -50,10 +50,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let creds = BasicAuth{ user: args.api_client_id, password: args.api_client_secret };
 
-    let api_response = make_api_request("2023-12-01".to_string(), "2023-12-03".to_string(), creds);
+    let api_response = make_api_request("2023-12-01".to_string(), "2023-12-01".to_string(), creds)?;
+
+    let current_phase = &api_response["data"]["table"]["rows"][0]["cells"][0]["extraInfo"]["phase"]["string"];
+    let current_phase = current_phase.as_str().unwrap_or_default();
 
     match args.phase {
-        true => println!("{:?}", api_response),
+        true => println!("{:?}", current_phase),
         false => (),
     };
 
