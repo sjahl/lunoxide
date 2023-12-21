@@ -6,6 +6,8 @@ use reqwest::blocking::Client;
 
 use serde_json::Value;
 
+use chrono::prelude::*;
+
 // Plan
 // 3. request the current moon phase and return it
 
@@ -31,10 +33,10 @@ struct BasicAuth {
     password: String,
 }
 
-fn make_api_request(from_date: String, to_date: String, creds: BasicAuth) -> Result<Value, reqwest::Error> {
+fn make_api_request(from_date: &String, to_date: &String, time: &String, creds: BasicAuth) -> Result<Value, reqwest::Error> {
     let client = Client::new();
 
-    let url = format!("https://api.astronomyapi.com/api/v2/bodies/positions/moon?latitude=42.3&longitude=-70.5&elevation=1&from_date={from_date}&to_date={to_date}&time=20:34:00");
+    let url = format!("https://api.astronomyapi.com/api/v2/bodies/positions/moon?latitude=42.3&longitude=-70.5&elevation=1&from_date={from_date}&to_date={to_date}&time={time}");
     
     let resp: serde_json::Value = client.get(url)
     .basic_auth(creds.user, Some(creds.password))
@@ -50,7 +52,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let creds = BasicAuth{ user: args.api_client_id, password: args.api_client_secret };
 
-    let api_response = make_api_request("2023-12-01".to_string(), "2023-12-01".to_string(), creds)?;
+    let current_date: DateTime<Local> = Local::now();
+    let date_formatted = format!("{}", current_date.format("%Y-%m-%d"));
+    let time_formatted = format!("{}", current_date.format("%H:%M:%S"));
+
+    let api_response = make_api_request(&date_formatted, &date_formatted, &time_formatted, creds)?;
 
     let current_phase = &api_response["data"]["table"]["rows"][0]["cells"][0]["extraInfo"]["phase"]["string"];
     let current_phase = current_phase.as_str().unwrap_or_default();
