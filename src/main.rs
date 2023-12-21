@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use chrono::{prelude::*, Duration};
 use clap::Parser;
 use reqwest::blocking::Client;
 use serde_json::Value;
@@ -14,8 +14,8 @@ struct Args {
     #[arg(short, long, default_value_t = false)]
     phase: bool,
 
-    #[arg(short, long, default_value_t = false)]
-    next_full_moon: bool,
+    #[arg(short, long, default_value_t = 0)]
+    forecast: u8,
 
     #[arg(long, env, hide_env = false)]
     api_client_id: String,
@@ -42,6 +42,16 @@ fn make_api_request(from_date: &String, to_date: &String, time: &String, creds: 
     Ok(resp)
 }
 
+fn phase_to_emoji(phase: &str) -> &str {
+    match phase {
+        "Waxing Gibbous" => "🌔",
+        "Waning Gibbous" => "🌖",
+        "Waxing Crescent" => "🌒",
+        "Waning Crescent" => "🌘",
+        _ => "unknown phase",
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
 
     let args = Args::parse();
@@ -49,22 +59,28 @@ fn main() -> Result<(), Box<dyn Error>> {
     let creds = BasicAuth{ user: args.api_client_id, password: args.api_client_secret };
 
     let current_date: DateTime<Local> = Local::now();
+    let forecast_end_date: DateTime<Local> = current_date + Duration::days(args.forecast as i64);
     let date_formatted = format!("{}", current_date.format("%Y-%m-%d"));
+    let f_end_date_formatted = format!("{}", forecast_end_date.format("%Y-%m-%d"));
     let time_formatted = format!("{}", current_date.format("%H:%M:%S"));
 
-    let api_response = make_api_request(&date_formatted, &date_formatted, &time_formatted, creds)?;
+
+    let api_response = make_api_request(&date_formatted, &f_end_date_formatted, &time_formatted, creds)?;
 
     let current_phase = &api_response["data"]["table"]["rows"][0]["cells"][0]["extraInfo"]["phase"]["string"];
     let current_phase = current_phase.as_str().unwrap_or_default();
 
     match args.phase {
-        true => println!("{}", current_phase),
+        true => println!("{}", phase_to_emoji(current_phase)),
         false => (),
     };
 
-    match args.next_full_moon {
-        true => println!("Calculating the next full moon date.... done."),
-        false => (),
+    match args.forecast {
+        1..=30 => {
+            println!("Calculating the moon phase forecast for {} days.... done.", args.forecast)
+        },
+        31.. => println!("i only fetch forecasts of up to 30 days."),
+        0 => (),
     };
 
     Ok(())
