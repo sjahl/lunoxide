@@ -1,12 +1,8 @@
-use std::error::Error;
-
-use clap::Parser;
-
-use reqwest::blocking::Client;
-
-use serde_json::Value;
-
 use chrono::prelude::*;
+use clap::Parser;
+use reqwest::blocking::Client;
+use serde_json::Value;
+use std::error::Error;
 
 // Plan
 // 3. request the current moon phase and return it
