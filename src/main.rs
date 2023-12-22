@@ -50,10 +50,14 @@ fn make_api_request(
 
 fn phase_to_emoji(phase: &str) -> &str {
     match phase {
-        "Waxing Gibbous" => "🌔",
-        "Waning Gibbous" => "🌖",
         "Waxing Crescent" => "🌒",
+        "First Quarter" => "🌓",
+        "Waxing Gibbous" => "🌔",
+        "Full" => "🌕",
+        "Waning Gibbous" => "🌖",
+        "Last Quarter" => "🌗",
         "Waning Crescent" => "🌘",
+        "New" => "🌑",
         _ => "unknown phase",
     }
 }
