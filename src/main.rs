@@ -15,20 +15,18 @@ struct Args {
     forecast: u8,
 }
 
+#[allow(clippy::cast_precision_loss)]
 fn calc_moon_age(current_date: DateTime<Local>) -> f64 {
     let known_new_moon = Utc.with_ymd_and_hms(1900, 1, 1, 0, 0, 0).unwrap();
     let duration: Duration = current_date.with_timezone(&Utc) - known_new_moon;
 
     // it is highly unlikely that we will overflow an i64 with the number of days since
     // jan 1 1900
-    #[allow(clippy::cast_precision_loss)]
-    {
-        duration.num_days() as f64 % 29.53059
-    }
+    duration.num_days() as f64 % 29.53059
 }
 
+#[allow(clippy::cast_possible_truncation)]
 fn current_phase(moon_age: f64) -> &'static str {
-    println!("{moon_age:?}");
     let fraction = ((moon_age / 29.53059) * 100.0).round() as i64;
     match fraction {
         0..=24 => "Waxing Crescent",
