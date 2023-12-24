@@ -100,8 +100,9 @@ fn main() {
                 args.forecast
             );
             for day in 0..args.forecast {
-                let moon_age = calc_moon_age(current_date + Duration::days(i64::from(day)));
-                println!("{}", &current_phase(moon_age));
+                let dt = current_date + Duration::days(i64::from(day));
+                let moon_age = calc_moon_age(dt);
+                println!("{}: {}", dt, &current_phase(moon_age));
             }
         }
         91.. => println!("i only fetch forecasts of up to 90 days."),
