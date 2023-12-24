@@ -1,8 +1,6 @@
 use chrono::{prelude::*, Duration, Utc};
 use clap::Parser;
-
-// Plan
-// 3. request the current moon phase and return it
+use std::fmt;
 
 #[derive(Parser, Debug)]
 #[command(name = "lunoxide")]
@@ -13,6 +11,50 @@ struct Args {
 
     #[arg(short, long, default_value_t = 0)]
     forecast: u8,
+}
+
+enum MoonPhase {
+    NewMoon,
+    WaxingCrescent,
+    FirstQuarter,
+    WaxingGibbous,
+    FullMoon,
+    WaningGibbous,
+    LastQuarter,
+    WaningCrescent,
+    Unknown,
+}
+
+impl From<&str> for MoonPhase {
+    fn from(value: &str) -> Self {
+        match value {
+            "Waxing Crescent" => Self::WaxingCrescent,
+            "First Quarter" => Self::FirstQuarter,
+            "Waxing Gibbous" => Self::WaxingGibbous,
+            "Full Moon" => Self::FullMoon,
+            "Waning Gibbous" => Self::WaningGibbous,
+            "Last Quarter" => Self::LastQuarter,
+            "Waning Crescent" => Self::WaningCrescent,
+            "New Moon" => Self::NewMoon,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+impl fmt::Display for MoonPhase {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            MoonPhase::WaxingCrescent => write!(f, "🌒"),
+            MoonPhase::FirstQuarter => write!(f, "🌓"),
+            MoonPhase::WaxingGibbous => write!(f, "🌔"),
+            MoonPhase::FullMoon => write!(f, "🌕"),
+            MoonPhase::WaningGibbous => write!(f, "🌖"),
+            MoonPhase::LastQuarter => write!(f, "🌗"),
+            MoonPhase::WaningCrescent => write!(f, "🌘"),
+            MoonPhase::NewMoon => write!(f, "🌑"),
+            MoonPhase::Unknown => write!(f, "MoonPhase::Unknown"),
+        }
+    }
 }
 
 #[allow(clippy::cast_precision_loss)]
@@ -26,32 +68,18 @@ fn calc_moon_age(current_date: DateTime<Local>) -> f64 {
 }
 
 #[allow(clippy::cast_possible_truncation)]
-fn current_phase(moon_age: f64) -> &'static str {
+fn current_phase(moon_age: f64) -> MoonPhase {
     let fraction = ((moon_age / 29.53059) * 100.0).round() as i64;
     match fraction {
-        0..=1 | 99..=100 => "New Moon",
-        2..=23 => "Waxing Crescent",
-        24..=26 => "First Quarter",
-        27..=48 => "Waxing Gibbous",
-        49..=51 => "Full Moon",
-        52..=73 => "Waning Gibbous",
-        74..=76 => "Last Quarter",
-        77..=98 => "Waning Crescent",
-        _ => "unknown",
-    }
-}
-
-fn phase_to_emoji(phase: &str) -> &str {
-    match phase {
-        "Waxing Crescent" => "🌒",
-        "First Quarter" => "🌓",
-        "Waxing Gibbous" => "🌔",
-        "Full Moon" => "🌕",
-        "Waning Gibbous" => "🌖",
-        "Last Quarter" => "🌗",
-        "Waning Crescent" => "🌘",
-        "New Moon" => "🌑",
-        _ => "unknown phase",
+        0..=1 | 99..=100 => MoonPhase::NewMoon,
+        2..=23 => MoonPhase::WaxingCrescent,
+        24..=26 => MoonPhase::FirstQuarter,
+        27..=48 => MoonPhase::WaxingGibbous,
+        49..=51 => MoonPhase::FullMoon,
+        52..=73 => MoonPhase::WaningGibbous,
+        74..=76 => MoonPhase::LastQuarter,
+        77..=98 => MoonPhase::WaningCrescent,
+        _ => MoonPhase::Unknown,
     }
 }
 
@@ -65,7 +93,7 @@ fn main() {
     let moon_age = calc_moon_age(current_date);
 
     if args.phase {
-        println!("{}", phase_to_emoji(current_phase(moon_age)));
+        println!("{}", &current_phase(moon_age));
     }
 
     match args.forecast {
@@ -76,7 +104,7 @@ fn main() {
             );
             for day in 0..args.forecast {
                 let moon_age = calc_moon_age(current_date + Duration::days(i64::from(day)));
-                println!("{}", phase_to_emoji(current_phase(moon_age)));
+                println!("{}", &current_phase(moon_age));
             }
         }
         31.. => println!("i only fetch forecasts of up to 30 days."),
