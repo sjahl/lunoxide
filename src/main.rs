@@ -94,7 +94,7 @@ fn main() {
     }
 
     match args.forecast {
-        1..=30 => {
+        1..=90 => {
             println!(
                 "Calculating the moon phase forecast for {} days...",
                 args.forecast
@@ -104,7 +104,7 @@ fn main() {
                 println!("{}", &current_phase(moon_age));
             }
         }
-        31.. => println!("i only fetch forecasts of up to 30 days."),
+        91.. => println!("i only fetch forecasts of up to 90 days."),
         0 => (),
     };
 }
