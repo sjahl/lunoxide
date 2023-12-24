@@ -29,13 +29,14 @@ fn calc_moon_age(current_date: DateTime<Local>) -> f64 {
 fn current_phase(moon_age: f64) -> &'static str {
     let fraction = ((moon_age / 29.53059) * 100.0).round() as i64;
     match fraction {
-        0..=24 => "Waxing Crescent",
-        25 => "First Quarter",
-        26..=49 => "Waxing Gibbous",
-        50 => "Full Moon",
-        51..=74 => "Waning Gibbous",
-        75 => "Last Quarter",
-        76..=100 => "Waning Crescent",
+        0..=1 | 99..=100 => "New Moon",
+        2..=23 => "Waxing Crescent",
+        24..=26 => "First Quarter",
+        27..=48 => "Waxing Gibbous",
+        49..=51 => "Full Moon",
+        52..=73 => "Waning Gibbous",
+        74..=76 => "Last Quarter",
+        77..=98 => "Waning Crescent",
         _ => "unknown",
     }
 }
@@ -45,11 +46,11 @@ fn phase_to_emoji(phase: &str) -> &str {
         "Waxing Crescent" => "🌒",
         "First Quarter" => "🌓",
         "Waxing Gibbous" => "🌔",
-        "Full" => "🌕",
+        "Full Moon" => "🌕",
         "Waning Gibbous" => "🌖",
         "Last Quarter" => "🌗",
         "Waning Crescent" => "🌘",
-        "New" => "🌑",
+        "New Moon" => "🌑",
         _ => "unknown phase",
     }
 }
@@ -73,6 +74,10 @@ fn main() {
                 "Calculating the moon phase forecast for {} days.... done.",
                 args.forecast
             );
+            for day in 0..args.forecast {
+                let moon_age = calc_moon_age(current_date + Duration::days(i64::from(day)));
+                println!("{}", phase_to_emoji(current_phase(moon_age)));
+            }
         }
         31.. => println!("i only fetch forecasts of up to 30 days."),
         0 => (),
