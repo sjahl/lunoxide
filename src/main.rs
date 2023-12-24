@@ -44,14 +44,14 @@ impl From<&str> for MoonPhase {
 impl fmt::Display for MoonPhase {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            MoonPhase::WaxingCrescent => write!(f, "🌒"),
-            MoonPhase::FirstQuarter => write!(f, "🌓"),
-            MoonPhase::WaxingGibbous => write!(f, "🌔"),
-            MoonPhase::FullMoon => write!(f, "🌕"),
-            MoonPhase::WaningGibbous => write!(f, "🌖"),
-            MoonPhase::LastQuarter => write!(f, "🌗"),
-            MoonPhase::WaningCrescent => write!(f, "🌘"),
-            MoonPhase::NewMoon => write!(f, "🌑"),
+            MoonPhase::WaxingCrescent => write!(f, "🌒, Waxing Crescent"),
+            MoonPhase::FirstQuarter => write!(f, "🌓, First Quarter"),
+            MoonPhase::WaxingGibbous => write!(f, "🌔, Waxing Gibbous"),
+            MoonPhase::FullMoon => write!(f, "🌕, Full Moon"),
+            MoonPhase::WaningGibbous => write!(f, "🌖, Waning Gibbous"),
+            MoonPhase::LastQuarter => write!(f, "🌗, Last Quarter"),
+            MoonPhase::WaningCrescent => write!(f, "🌘, Waning Crescent"),
+            MoonPhase::NewMoon => write!(f, "🌑, New Moon"),
             MoonPhase::Unknown => write!(f, "MoonPhase::Unknown"),
         }
     }
@@ -87,19 +87,16 @@ fn main() {
     let args = Args::parse();
 
     let current_date: DateTime<Local> = Local::now();
-    // let forecast_end_date: DateTime<Local> =
-    // current_date + Duration::days(i64::from(args.forecast));
-
-    let moon_age = calc_moon_age(current_date);
 
     if args.phase {
-        println!("{}", &current_phase(moon_age));
+        let moon_age = calc_moon_age(current_date);
+        println!("The current moon phase is: {}", &current_phase(moon_age));
     }
 
     match args.forecast {
         1..=30 => {
             println!(
-                "Calculating the moon phase forecast for {} days.... done.",
+                "Calculating the moon phase forecast for {} days...",
                 args.forecast
             );
             for day in 0..args.forecast {
