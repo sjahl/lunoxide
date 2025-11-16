@@ -107,5 +107,5 @@ fn main() {
         }
         91.. => println!("i only fetch forecasts of up to 90 days."),
         0 => (),
-    };
+    }
 }
